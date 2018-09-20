@@ -55,3 +55,27 @@ __email__ = "joaomcteixeira@gmail.com"
 USAGE = __doc__.format(__author__, __email__)
 
 
+def _add_chain(options, identifiers):
+    """Runs over each line of the PDB."""
+    yield None
+
+if __name__ == '__main__':
+    # Check Input
+    option, identifiers = check_option(sys.argv[1:])
+
+    # Do the job
+    new_pdb = _add_chain(option, identifiers)
+
+    try:
+        sys.stdout.write(''.join(new_pdb))
+        sys.stdout.flush()
+    except IOError:
+        # This is here to catch Broken Pipes
+        # for example to use 'head' or 'tail' without
+        # the error message showing up
+        pass
+
+    # last line of the script
+    # We can close it even if it is sys.stdin
+    pdbfh.close()
+    sys.exit(0)
