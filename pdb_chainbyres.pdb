@@ -74,7 +74,20 @@ def check_input(args):
     
 
 def _add_chain_by_res(pdbfh):
-    """Runs over each line of the PDB."""
+    """Logic within a function."""
+    coord_re = re.compile('^(ATOM|HETATM)')
+    
+    prev_res = None
+    
+    for line in pdbfh:
+        if not coord_re.match(line):
+            continue
+        
+        res = line[17:20]
+        
+        if 
+        
+    
     yield None
 
 if __name__ == '__main__':
