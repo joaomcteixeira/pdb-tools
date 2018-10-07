@@ -78,7 +78,7 @@ def check_input(args):
 def _alter_chain(fhandle, chain_id):
     """Enclosing logic in a function to speed up a bit"""
 
-    coord_re = re.compile('^(ATOM|HETATM)')
+    coord_re = re.compile('^(ATOM|HETATM|TER)')
     fhandle = fhandle
     chain_id = chain_id
 
