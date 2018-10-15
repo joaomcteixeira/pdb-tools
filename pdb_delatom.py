@@ -51,7 +51,7 @@ def check_input(args):
     
     elif len(args) == 2:
         if args[0].startswith('-'):
-            atom = args[0].lstrip('-').
+            atom = args[0].lstrip('-')
         else:
             sys.stderr.write('Bad input: ' + args[0] + '\n')
             sys.stderr.write(USAGE)
