@@ -112,10 +112,7 @@ def tidy_pdbfile(fhandle):
         elif line.startswith(records):
             
             diff_chain = line[21] != prev_line[21]
-            res_id_diff = int(line[22:26]) - int(prev_line[22:26])
-            
             is_gap = (int(line[22:26]) - int(prev_line[22:26])) > 1
-            
             do_atom_renum = int(line[6:11]) - int(prev_line[6:11]) == 1
             
             if diff_chain or is_gap:
