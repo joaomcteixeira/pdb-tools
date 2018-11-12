@@ -81,7 +81,7 @@ def tidy_pdbfile(fhandle):
     # TER     606      LEU A  75
     fmt_TER = "TER   {:>5d}      {:3s} {:1s}{:>4s}{:1s}" + " " * 53 + "\n"
     # CONECT 1179  746 1184 1195 1203
-    fmt_CONECT = "CONECT{:>5d}{:>5d}{:>5d}{:>5d}{:>5d}" + " " * 49 + "\n"
+    fmt_CONECT = "CONECT{:>5s}{:>5s}{:>5s}{:>5s}{:>5s}" + " " * 49 + "\n"
     char_ranges = (slice(6, 11), slice(11, 16),
                    slice(16, 21), slice(21, 26), slice(26, 31))
 
