@@ -148,23 +148,21 @@ def tidy_pdbfile(fhandle):
             yield conect_line
             continue
 
-        else:
-            if coord_section:
-                coord_section = False
-                # Add last TER statement
-                serial = int(prev_line[6:11]) + 1
-                rname = prev_line[17:20]
-                chain = prev_line[21]
-                resid = prev_line[22:26]
-                icode = prev_line[26]
-
-                ter_line = fmt_TER.format(serial, rname, chain, resid, icode)
-                yield ter_line
-        
         # Check line length
         line = "{:<80}\n".format(line.strip())
         
         yield line
+    
+    else:
+        # Add last TER statement
+        serial = int(prev_line[6:11]) + 1
+        rname = prev_line[17:20]
+        chain = prev_line[21]
+        resid = prev_line[22:26]
+        icode = prev_line[26]
+        
+        ter_line = fmt_TER.format(serial, rname, chain, resid, icode)
+        yield ter_line
     
     # Add END statement
     yield "{:<80}\n".format("END")
