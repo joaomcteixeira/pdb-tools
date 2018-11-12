@@ -114,10 +114,9 @@ def tidy_pdbfile(fhandle):
             diff_chain = line[21] != prev_line[21]
             res_id_diff = int(line[22:26]) - int(prev_line[22:26])
             
-            # any situation different from chain change with sequential
-            # atom numbering is considered a gap.
-            is_gap = \
-                abs(res_id_diff) > 1 or (diff_chain and res_id_diff == 0)
+            is_gap = (int(line[22:26]) - int(prev_line[22:26])) > 1
+            
+            do_atom_renum = int(line[6:11]) - int(prev_line[6:11]) == 1
             
             if diff_chain or is_gap:
                 serial = int(prev_line[6:11]) + 1
@@ -132,9 +131,10 @@ def tidy_pdbfile(fhandle):
                 yield ter_line
             
             ori_serial = int(prev_line[6:11])
+            serial = ori_serial
             
-            if not(is_gap):
-                serial = ori_serial + serial_offset
+            if do_atom_renum:
+                serial += serial_offset
                 line = line[:6] + str(serial).rjust(5) + line[11:]
             
             serial_equiv[ori_serial] = serial
