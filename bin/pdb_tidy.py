@@ -104,16 +104,22 @@ def tidy_pdbfile(fhandle):
 
     # Now go through all the remaining lines
     serial_equiv = {}  # store for conect statements
-    coord_section = False
     serial_offset = 0  # To offset after adding TER records
     for line in fhandle:
         if line.startswith(ignored):
             continue
 
         elif line.startswith(records):
-            coord_section = True
-            is_gap = (int(line[22:26]) - int(prev_line[22:26])) > 1
-            if line[21] != prev_line[21] or is_gap:
+            
+            diff_chain = line[21] != prev_line[21]
+            res_id_diff = int(line[22:26]) - int(prev_line[22:26])
+            
+            # any situation different from chain change with sequential
+            # atom numbering is considered a gap.
+            is_gap = \
+                abs(res_id_diff) > 1 or (diff_chain and res_id_diff == 0)
+            
+            if diff_chain or is_gap:
                 serial = int(prev_line[6:11]) + 1
                 rname = prev_line[17:20]
                 chain = prev_line[21]
@@ -124,16 +130,17 @@ def tidy_pdbfile(fhandle):
                 
                 ter_line = fmt_TER.format(serial, rname, chain, resid, icode)
                 yield ter_line
-
+            
             ori_serial = int(prev_line[6:11])
-            serial = ori_serial + serial_offset
-
+            
+            if not(is_gap):
+                serial = ori_serial + serial_offset
+                line = line[:6] + str(serial).rjust(5) + line[11:]
+            
             serial_equiv[ori_serial] = serial
-
-            line = line[:6] + str(serial).rjust(5) + line[11:]
             prev_line = line
             serial_offset = 1  # reset otherwise we have +2 ex.
-
+            
         elif line.startswith('ANISOU'):
             # Fix serial based on previous atom
             serial = prev_line[6:11]
