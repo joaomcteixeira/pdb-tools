@@ -1,6 +1,11 @@
-# pdb-tools [![Build Status](https://travis-ci.org/JoaoRodrigues/pdb-tools.svg?branch=version2)](https://travis-ci.org/JoaoRodrigues/pdb-tools)
-Set of Python scripts designed to be a dependency-free cross-platform 
-swiss-knife for PDB files.
+# pdb-tools
+
+[![PyPI version](https://badge.fury.io/py/pdb-tools.svg)](https://badge.fury.io/py/pdb-tools)
+![Travis (.org) branch](https://img.shields.io/travis/JoaoRodrigues/pdb-tools/version2.svg?style=flat&label=TravisCI)
+![AppVeyor branch](https://img.shields.io/appveyor/ci/JoaoRodrigues/pdb-tools.svg?style=flat&label=AppVeyor)
+
+
+A swiss army knife for manipulating and editing PDB files.
 
 
 ## Looking for the _other_ pdb-tools?
@@ -46,23 +51,23 @@ consistent. Therefore, here is a couple of examples to get you started:
 
 * Downloading a structure
    ```bash
-   ./pdb_fetch.py 1ctf > 1ctf.pdb
-   ./pdb_fetch.py -biounit 1brs > 1brs_biounit.pdb
+   pdb_fetch 1ctf > 1ctf.pdb
+   pdb_fetch -biounit 1brs > 1brs_biounit.pdb
    ```
 
 * Renumbering a structure
    ```bash
-   ./pdb_reres.py -1 1ctf.pdb > 1ctf_renumbered.pdb
+   pdb_reres -1 1ctf.pdb > 1ctf_renumbered.pdb
    ```
 
 * Extracting a particular chain
    ```bash
-   ./pdb_selchain.py -A 1brs_biounit.pdb > 1brs_A.pdb
+   pdb_selchain -A 1brs_biounit.pdb > 1brs_A.pdb
    ```
 
 * Downloading, extracting a chain, and extracting its aa sequence
   ```bash
-  ./pdb_fetch.py 1brs | ./pdb_selchain.py -A | ./pdb_toseq.py > 1brs_A.fasta
+  pdb_fetch 1brs | pdb_selchain -A | pdb_toseq > 1brs_A.fasta
   ```
 
 ## What _can't_ I do with them?
@@ -102,7 +107,7 @@ python setup.py install
 
 ## Contributing
 If you want to contribute to the development of `pdb-tools`, provide a bug fix,
-or a new tools, read our `CONTRIBUTING` instructions [here](CONTRIBUTING.md).
+or a new tools, read our `CONTRIBUTING` instructions [here](https://github.com/JoaoRodrigues/pdb-tools/blob/version2/CONTRIBUTING.md).
 
 ## License
 `pdb-tools` are open-source and licensed under the Apache License, version 2.0.
