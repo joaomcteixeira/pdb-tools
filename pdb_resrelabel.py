@@ -42,12 +42,15 @@ def check_input(args):
         if not sys.stdin.isatty():
             pdbfh = sys.stdin
         else:
+            emsg = 'ERROR!! No data to process!\n'
+            sys.stderr.write(emsg)
             sys.stderr.write(USAGE)
             sys.exit(1)
         
     elif len(args) == 3 and sys.stdin.isatty():
         if not os.path.isfile(args[-1]):
-            sys.stderr.write('File not found: ' + args[-1] + '\n')
+            emsg = 'ERROR!! File not found or not readable: \'{}\'\n'
+            sys.stderr.write(emsg.format(args[-1]))
             sys.stderr.write(USAGE)
             sys.exit(1)
         
@@ -57,6 +60,18 @@ def check_input(args):
         sys.stderr.write(USAGE)
         sys.exit(1)
     
+    if not(args[0].startswith("-")):
+        emsg = "ERROR!! '{}' is not an option!\n"
+        sys.stderr.write(emsg.format(args[0]))
+        sys.stderr.write(USAGE)
+        sys.exit(1)
+    
+    elif not(args[1].startswith("-")):
+        emsg = "ERROR!! '{}' is not an option!\n"
+        sys.stderr.write(emsg.format(args[1]))
+        sys.stderr.write(USAGE)
+        sys.exit(1)
+        
     old_label = args[0].strip("-")
     new_label = args[1].strip("-")
     
@@ -80,8 +95,7 @@ def _relabels_residue(pdbfh, old_label, new_label):
         else:
             yield line
 
-if __name__ == '__main__':
-    
+def main():
     # Check Input
     pdbfh, old_label, new_label = check_input(sys.argv[1:])
     
@@ -101,3 +115,7 @@ if __name__ == '__main__':
     # We can close it even if it is sys.stdin
     pdbfh.close()
     sys.exit(0)
+
+if __name__ == '__main__':
+    
+    main()
