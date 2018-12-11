@@ -16,14 +16,15 @@
 # limitations under the License.
 
 """
-Renumbers the residues of the PDB file starting from a given number (default 1).
+Removes all residues matching the given name in the PDB file. Residues names are
+matched *without* taking into consideration spaces.
 
 Usage:
-    python pdb_reres.py -<number> <pdb file>
+    python pdb_selresname.py -<option> <pdb file>
 
 Example:
-    python pdb_reres.py -10 1CTF.pdb  # renumbers from 10
-    python pdb_reres.py --1 1CTF.pdb  # renumbers from -1
+    python pdb_selresname.py -ALA 1CTF.pdb  # removes only Alanines
+    python pdb_selresname.py -ASP,GLU 1CTF.pdb  # removes (-) charged residues
 
 This program is part of the `pdb-tools` suite of utilities and should not be
 distributed isolatedly. The `pdb-tools` were created to quickly manipulate PDB
@@ -35,8 +36,8 @@ effort to maintain and compile. RIP.
 import os
 import sys
 
-__author__ = "Joao Rodrigues"
-__email__ = "j.p.g.l.m.rodrigues@gmail.com"
+__author__ = ["Joao Rodrigues", "Joao M.C. Teixeira"]
+__email__ = ["j.p.g.l.m.rodrigues@gmail.com", "joaomcteixeira@gmail.com"]
 
 
 def check_input(args):
@@ -44,7 +45,7 @@ def check_input(args):
     """
 
     # Defaults
-    option = 1
+    option = ''
     fh = sys.stdin  # file handle
 
     if not len(args):
@@ -94,58 +95,43 @@ def check_input(args):
         sys.exit(1)
 
     # Validate option
-    try:
-        option = int(option)
-    except ValueError:
-        emsg = 'ERROR!! You provided an invalid residue number: \'{}\''
-        sys.stderr.write(emsg.format(option))
+    option_set = set([o.upper().strip() for o in option.split(',') if o.strip()])
+    if not option_set:
+        sys.stderr.write('ERROR!! Residue name set cannot be empty\n')
+        sys.stderr.write(__doc__)
         sys.exit(1)
+    else:
+        for elem in option_set:
+            if len(elem) > 3:
+                emsg = 'ERROR!! Residue name is invalid: \'{}\'\n'
+                sys.stderr.write(emsg.format(elem))
+                sys.stderr.write(__doc__)
+                sys.exit(1)
+
+    return (option_set, fh)
 
     return (option, fh)
 
 
-def pad_line(line):
-    """Helper function to pad line to 80 characters in case it is shorter"""
-    size_of_line = len(line)
-    if size_of_line < 80:
-        padding = 80 - size_of_line + 1
-        line = line.strip('\n') + ' ' * padding + '\n'
-    return line[:81]  # 80 + newline character
-
-
-def renumber_residues(fhandle, starting_resid):
-    """Resets the residue number column to start from a specific number.
+def delete_residue_by_name(fhandle, resname_set):
+    """Removes specific residue that match a given name.
     """
-    _pad_line = pad_line
-    prev_resid = None  # tracks chain and resid
-    resid = starting_resid - 1  # account for first residue
-    records = ('ATOM', 'HETATM', 'TER', 'ANISOU')
+
+    records = ('ATOM', 'HETATM', 'ANISOU', 'TER')
     for line in fhandle:
-        line = _pad_line(line)
         if line.startswith(records):
-            line_resuid = line[17:27]
-            if line_resuid != prev_resid:
-                prev_resid = line_resuid
-                resid += 1
-                if resid > 9999:
-                    emsg = 'Cannot set residue number above 9999.\n'
-                    sys.stderr.write(emsg)
-                    sys.exit(1)
-
-            yield line[:22] + str(resid).rjust(4) + line[26:]
-
-        else:
-            yield line
+            if line[17:20].strip() in resname_set:
+                continue
+        yield line
 
 
 def main():
     # Check Input
-    starting_resid, pdbfh = check_input(sys.argv[1:])
+    resname_set, pdbfh = check_input(sys.argv[1:])
 
     # Do the job
-    new_pdb = renumber_residues(pdbfh, starting_resid)
+    new_pdb = delete_residue_by_name(pdbfh, resname_set)
 
-    # Output results
     try:
         _buffer = []
         _buffer_size = 5000  # write N lines at a time
@@ -164,7 +150,7 @@ def main():
         pass
 
     # last line of the script
-    # Close file handle even if it is sys.stdin, no problem here.
+    # We can close it even if it is sys.stdin
     pdbfh.close()
     sys.exit(0)
 

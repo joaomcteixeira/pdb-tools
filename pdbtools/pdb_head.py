@@ -16,14 +16,13 @@
 # limitations under the License.
 
 """
-Renumbers the residues of the PDB file starting from a given number (default 1).
+Returns the first N coordinate (ATOM/HETATM) lines of the file.
 
 Usage:
-    python pdb_reres.py -<number> <pdb file>
+    python pdb_head.py -<num> <pdb file>
 
 Example:
-    python pdb_reres.py -10 1CTF.pdb  # renumbers from 10
-    python pdb_reres.py --1 1CTF.pdb  # renumbers from -1
+    python pdb_head.py -100 1CTF.pdb  # first 100 ATOM/HETATM lines of the file
 
 This program is part of the `pdb-tools` suite of utilities and should not be
 distributed isolatedly. The `pdb-tools` were created to quickly manipulate PDB
@@ -44,7 +43,7 @@ def check_input(args):
     """
 
     # Defaults
-    option = 1
+    option = None
     fh = sys.stdin  # file handle
 
     if not len(args):
@@ -96,8 +95,10 @@ def check_input(args):
     # Validate option
     try:
         option = int(option)
+        if option < 1:
+            raise ValueError
     except ValueError:
-        emsg = 'ERROR!! You provided an invalid residue number: \'{}\''
+        emsg = 'ERROR!! Option must be a positive numerical value: \'{}\'\n'
         sys.stderr.write(emsg.format(option))
         sys.exit(1)
 
@@ -113,39 +114,31 @@ def pad_line(line):
     return line[:81]  # 80 + newline character
 
 
-def renumber_residues(fhandle, starting_resid):
-    """Resets the residue number column to start from a specific number.
+def get_first_n_lines(fhandle, num_lines):
+    """Returns the first N (ATOM/HETATM) lines of the PDB file.
     """
+
+    counter = 0
+
     _pad_line = pad_line
-    prev_resid = None  # tracks chain and resid
-    resid = starting_resid - 1  # account for first residue
-    records = ('ATOM', 'HETATM', 'TER', 'ANISOU')
+    records = ('ATOM', 'HETATM')
     for line in fhandle:
-        line = _pad_line(line)
         if line.startswith(records):
-            line_resuid = line[17:27]
-            if line_resuid != prev_resid:
-                prev_resid = line_resuid
-                resid += 1
-                if resid > 9999:
-                    emsg = 'Cannot set residue number above 9999.\n'
-                    sys.stderr.write(emsg)
-                    sys.exit(1)
 
-            yield line[:22] + str(resid).rjust(4) + line[26:]
+            yield _pad_line(line)
 
-        else:
-            yield line
+            counter += 1
+            if counter == num_lines:
+                break
 
 
 def main():
     # Check Input
-    starting_resid, pdbfh = check_input(sys.argv[1:])
+    chain, pdbfh = check_input(sys.argv[1:])
 
     # Do the job
-    new_pdb = renumber_residues(pdbfh, starting_resid)
+    new_pdb = get_first_n_lines(pdbfh, chain)
 
-    # Output results
     try:
         _buffer = []
         _buffer_size = 5000  # write N lines at a time
@@ -164,7 +157,7 @@ def main():
         pass
 
     # last line of the script
-    # Close file handle even if it is sys.stdin, no problem here.
+    # We can close it even if it is sys.stdin
     pdbfh.close()
     sys.exit(0)
 
