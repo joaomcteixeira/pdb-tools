@@ -35,6 +35,7 @@ setup(
     url='http://bonvinlab.org/pdb-tools',  # Optional
     author='Joao Rodrigues',  # Optional
     author_email='j.p.g.l.m.rodrigues@gmail.com',  # Optional
+    data_files=['LICENSE'],
     license='Apache Software License, version 2',
     classifiers=[  # Optional
         # How mature is this project? Common values are
