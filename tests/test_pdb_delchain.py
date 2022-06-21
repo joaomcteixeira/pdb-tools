@@ -68,6 +68,30 @@ class TestTool(unittest.TestCase):
         self.assertEqual(len(self.stdout), 144)  # deleted chain A (60 atoms)
         self.assertEqual(len(self.stderr), 0)  # no errors
 
+    def test_default_in_lib(self):
+        """
+        Test command-line versus lib.
+
+        $ pdb_delchain data/dummy.pdb
+
+        >>> original_lines = open('dummy.pdb').readlines()
+        >>> lines = list(pdb_delchain.run(original_lines))
+
+        `lines` and the result from the command-line must be the same.
+        """
+
+        fpath = os.path.join(data_dir, 'dummy.pdb')
+        sys.argv = ['', fpath]
+
+        # Execute the script
+        self.exec_module()
+
+        fin = open(os.path.join(data_dir, 'dummy.pdb'))
+        original_lines = fin.readlines()
+        fin.close()
+        lines = list(self.module.run(original_lines, 'A'))
+        self.assertTrue(lines, self.stdout)
+
     def test_multiple(self):
         """
         $ pdb_delchain -A,B data/dummy.pdb

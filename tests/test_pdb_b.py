@@ -57,7 +57,7 @@ class TestTool(unittest.TestCase):
         """$ pdb_b data/dummy.pdb"""
 
         # Simulate input
-        # pdb_b -20 dummy.pdb
+        # pdb_b -10 dummy.pdb
         sys.argv = ['', os.path.join(data_dir, 'dummy.pdb')]
 
         # Execute the script
@@ -72,6 +72,30 @@ class TestTool(unittest.TestCase):
         bfactors = [l[60:66] for l in self.stdout if l.startswith(records)]
         unique_bfac = list(set(map(float, bfactors)))
         self.assertEqual(unique_bfac, [10.00])  # all bfactors changed
+
+    def test_default_in_lib(self):
+        """
+        Test command-line versus lib.
+
+        $ pdb_b data/dummy.pdb
+
+        >>> original_lines = open('dummy.pdb').readlines()
+        >>> lines = list(pdb_b.run(original_lines))
+
+        `lines` and the result from the command-line must be the same.
+        """
+
+        fpath = os.path.join(data_dir, 'dummy.pdb')
+        sys.argv = ['', fpath]
+
+        # Execute the script
+        self.exec_module()
+
+        fin = open(os.path.join(data_dir, 'dummy.pdb'))
+        original_lines = fin.readlines()
+        fin.close()
+        lines = list(self.module.run(original_lines, 10))
+        self.assertTrue(lines, self.stdout)
 
     def test_two_options(self):
         """$ pdb_b -20 data/dummy.pdb"""

@@ -70,6 +70,30 @@ class TestTool(unittest.TestCase):
         self.assertEqual(self.stdout[0],
                          "Ensemble of 2 models *seems* OK")
 
+    def test_default_in_lib(self):
+        """
+        Test command-line versus lib.
+
+        $ pdb_chkensemble data/ensemble_OK.pdb
+
+        >>> original_lines = open('ensemble_OK.pdb').readlines()
+        >>> lines = list(pdb_chkensemble.run(original_lines))
+
+        `lines` and the result from the command-line must be the same.
+        """
+
+        fpath = os.path.join(data_dir, 'ensemble_OK.pdb')
+        sys.argv = ['', fpath]
+
+        # Execute the script
+        self.exec_module()
+
+        fin = open(os.path.join(data_dir, 'ensemble_OK.pdb'))
+        original_lines = fin.readlines()
+        fin.close()
+        code = self.module.run(original_lines)
+        self.assertEqual(code, self.retcode)
+
     def test_ensemble_diffatom(self):
         """$ pdb_chkensemble data/ensemble_error_1.pdb"""
 

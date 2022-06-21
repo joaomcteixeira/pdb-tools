@@ -72,6 +72,30 @@ class TestTool(unittest.TestCase):
         unique_chain_ids = list(set(chain_ids))
         self.assertEqual(unique_chain_ids, [' '])
 
+    def test_default_in_lib(self):
+        """
+        Test command-line versus lib.
+
+        $ pdb_chain data/dummy.pdb
+
+        >>> original_lines = open('dummy.pdb').readlines()
+        >>> lines = list(pdb_chain.run(original_lines, 'A'))
+
+        `lines` and the result from the command-line must be the same.
+        """
+
+        fpath = os.path.join(data_dir, 'dummy.pdb')
+        sys.argv = ['', fpath]
+
+        # Execute the script
+        self.exec_module()
+
+        fin = open(os.path.join(data_dir, 'dummy.pdb'))
+        original_lines = fin.readlines()
+        fin.close()
+        lines = list(self.module.run(original_lines, 'A'))
+        self.assertTrue(lines, self.stdout)
+
     def test_two_options(self):
         """$ pdb_chain -X data/dummy.pdb"""
 

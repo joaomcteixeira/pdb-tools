@@ -105,6 +105,30 @@ class TestTool(unittest.TestCase):
 
         self.assertEqual(chain_ids, segid_list)
 
+    def test_default_in_lib(self):
+        """
+        Test command-line versus lib.
+
+        $ pdb_chainxseg data/dummy.pdb
+
+        >>> original_lines = open('dummy.pdb').readlines()
+        >>> lines = list(pdb_chainxseg.run(original_lines))
+
+        `lines` and the result from the command-line must be the same.
+        """
+
+        fpath = os.path.join(data_dir, 'dummy.pdb')
+        sys.argv = ['', fpath]
+
+        # Execute the script
+        self.exec_module()
+
+        fin = open(os.path.join(data_dir, 'dummy.pdb'))
+        original_lines = fin.readlines()
+        fin.close()
+        lines = list(self.module.run(original_lines))
+        self.assertTrue(lines, self.stdout)
+
     def test_file_not_found(self):
         """$ pdb_chainxseg not_existing.pdb"""
 
